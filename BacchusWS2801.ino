@@ -66,11 +66,12 @@ void processSerialBuffer(boolean executeNow) {
   
 }
 
-int addBytes(int byteA, int byteB) {
-  // Converts 2 7-bit bytes into a single number
+int addBytes(byte byteA, byte byteB) {
+  // Joins 2 Data Bytes into a single number
   
-  int total = 12;
-  
+  int total = byteA;
+  total <<= 7;
+  total |= byteB;
   return total;
 }
 
