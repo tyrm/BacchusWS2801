@@ -5,29 +5,34 @@
 // https://docs.google.com/spreadsheet/ccc?key=0AuwhwA-ghDeydEtWOUZZdTVKaDM5c211U210QV8ySWc&usp=sharing
 
 //Configuration
-int devAddress = 1;      // Device Address
-uint8_t numOfPixels = 40;    // Number of Pixels this is controlling
-uint8_t dataPin  = 2;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
+int devAddress       = 1;     // Device Address
+uint8_t numOfPixels  = 40;    // Number of Pixels this is controlling
+uint8_t dataPin      = 2;     // Yellow wire on Adafruit Pixels
+uint8_t clockPin     = 3;     // Green wire on Adafruit Pixels
 
 Adafruit_WS2801 pixels = Adafruit_WS2801(numOfPixels, dataPin, clockPin, WS2801_GRB);
 byte serBuffer[512];          // Buffer for incoming unprocessed serial data
-int bufCursor = 0;            // Current Location within the Buffer
-byte incomingByte = 0;        // Temporary holder for incoming serial byte
-boolean listening = false;    // Wether Bacchus is currently listening for serial DATA
+int bufCursor      = 0;       // Current Location within the Buffer
+byte incomingByte  = 0;       // Temporary holder for incoming serial byte
+boolean listening  = false;   // Wether Bacchus is currently listening for serial DATA
+int executeOn      = -1;      //Which control signal to respond to (0-15). -1 = none.
 
 void setup() {
   //Open Serial Port
   Serial.begin(115200); 
   while (!Serial) {} //Leonardo Fix
-  
-  
 }
 
 void loop() {
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
-    if ((incomingByte & 0xE0) == 0xE0) {
+    if ((incomingByte & 0xF0) == 0xF0) {
+      // This is a SIGNAL Byte
+      if ((incomingByte & 0x0F) == executeOn) {
+        pixels.show();
+        executeOn = -1;
+      }
+    } else if ((incomingByte & 0xF0) == 0xE0) {
       // This is an EXECUTABLE Byte
       switch (incomingByte) {
         case 0xE8:
@@ -57,7 +62,6 @@ void loop() {
       // If first 2 bytes do not equal device address then stop listening.
       if (bufCursor == 2) {
         if (addBytes(serBuffer[0],serBuffer[1]) != devAddress) {
-          bufCursor = 0;
           listening = false;
         }
       }
@@ -66,7 +70,13 @@ void loop() {
 }
 
 void processSerialBuffer(boolean executeNow) {
+  for (int i=2;i<bufCursor;i++) {
+    
+  }
   
+  if (executeNow) {
+    
+  }
 }
 
 int addBytes(byte byteA, byte byteB) {
@@ -78,8 +88,7 @@ int addBytes(byte byteA, byte byteB) {
   return total;
 }
 
-uint32_t Color(byte r, byte g, byte b)
-{
+uint32_t Color(byte r, byte g, byte b) {
   uint32_t c;
   c = r;
   c <<= 8;
