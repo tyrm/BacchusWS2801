@@ -1,6 +1,9 @@
 #include <SPI.h>
 #include <Adafruit_WS2801.h>
 
+// The Bacchus Protocol is Loosely defined here
+// https://docs.google.com/spreadsheet/ccc?key=0AuwhwA-ghDeydEtWOUZZdTVKaDM5c211U210QV8ySWc&usp=sharing
+
 //Configuration
 int devAddress = 1;      // Device Address
 uint8_t numOfPixels = 40;    // Number of Pixels this is controlling
